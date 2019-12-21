@@ -6,14 +6,16 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="https://mrkangh.github.io">
-  <title>Archives: 2019 | MrKangh的博客</title>
+  <title>Redis学习笔记1 | MrKangh的博客</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="MrKangh记录技术成长点滴">
-<meta property="og:type" content="website">
-<meta property="og:title" content="MrKangh的博客">
-<meta property="og:url" content="https:&#x2F;&#x2F;mrkangh.github.io&#x2F;archives&#x2F;2019&#x2F;index.html">
+  <meta name="description" content="11章.Redis缓存设计1.1 缓存好处：加速读写，降低后端访问量和复杂计算，降低后端负载1.2 缓存更新策略：针对缓存数据和数据源中数据有不一致情况，需要利用策略进行更新    a. LRU&#x2F;LFU&#x2F;FIFO算法剔除：例如redis使用maxmemory-policy配置作为内存最大值，超过这个值使用的算法    b. 超时剔除：设置过期时间    c. 主动更新：真实数据更新后，立即更新缓存">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redis学习笔记1">
+<meta property="og:url" content="https:&#x2F;&#x2F;mrkangh.github.io&#x2F;2019&#x2F;12&#x2F;19&#x2F;Redis%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B01&#x2F;index.html">
 <meta property="og:site_name" content="MrKangh的博客">
-<meta property="og:description" content="MrKangh记录技术成长点滴">
+<meta property="og:description" content="11章.Redis缓存设计1.1 缓存好处：加速读写，降低后端访问量和复杂计算，降低后端负载1.2 缓存更新策略：针对缓存数据和数据源中数据有不一致情况，需要利用策略进行更新    a. LRU&#x2F;LFU&#x2F;FIFO算法剔除：例如redis使用maxmemory-policy配置作为内存最大值，超过这个值使用的算法    b. 超时剔除：设置过期时间    c. 主动更新：真实数据更新后，立即更新缓存">
+<meta property="article:published_time" content="2019-12-19T13:48:18.000Z">
+<meta property="article:modified_time" content="2019-12-21T14:02:40.561Z">
 <meta property="article:author" content="MrKangh">
 <meta name="twitter:card" content="summary">
   
@@ -155,125 +157,172 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
+            <article id="post-Redis学习笔记1" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
   
+    <h1 class="article-title" itemprop="name">
+      Redis学习笔记1
+    </h1>
   
-    
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2019" class="archive-year">2019</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2019/12/19/Redis%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B01/" class="archive-article-date">
+
+        
+        <a href="/2019/12/19/Redis%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B01/" class="archive-article-date">
   	<time datetime="2019-12-19T13:48:18.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-12-19</time>
 </a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2019/12/19/Redis%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B01/">Redis学习笔记1</a>
-    </h1>
-  
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="11章-Redis缓存设计"><a href="#11章-Redis缓存设计" class="headerlink" title="11章.Redis缓存设计"></a>11章.Redis缓存设计</h3><p>1.1 缓存好处：加速读写，降低后端访问量和复杂计算，降低后端负载<br>1.2 缓存更新策略：针对缓存数据和数据源中数据有不一致情况，需要利用策略进行更新<br>    a. LRU/LFU/FIFO算法剔除：例如redis使用maxmemory-policy配置作为内存最大值，超过这个值使用的算法<br>    b. 超时剔除：设置过期时间<br>    c. 主动更新：真实数据更新后，立即更新缓存<br>1.3 穿透优化：查询一个不存在的数据，缓存层不命中，接着到存储层也不命中，不将空结果写回到缓存，使后端存储负载加大<br>    a. 解决办法1：存储层不命中后，仍然将空对象保留到缓存层中，之后再访问将从缓存中获取<br>    b. 布隆过滤器拦截：在访问缓存层和存储层之前，将存在的key用布隆过滤器保存起来，如果布隆过滤器认为此数据不存在，就不会访问存储层<br>1.4 无底洞优化：由于数据量和访问量持续增长，需要添加大量节点水平扩容，但是节点多不一样性能就高<br>    a. IO优化思路：优化命令本身、减少网络通信次数 、降低接入成本，客户端使用长连接/连接池等<br>    b. 命令串行，逐个执行get<br>    c. 减少网络通信次数方案：将同一个节点的key归档，得到每个节点的key子列表，之后对每个节点执行mget或pipeline操作，操作时间=节点次数网络时间+key个数命令时间，节点次数网络时间这儿还可以使用多线程变成并行IO<br>    d. Redis Cluster有hash_tag，可以将key强制分配到一个节点<br>1.5 雪崩优化：缓存层不能提供服务，所有请求都到了存储层，造成存储层宕机<br>    a. 保证缓存服务高可用<br>    b. 依赖隔离组件为后端限流并降级<br>1.6 热点key重建优化：热点key失效后，有大量线程来重建缓存，造成后端负载加大<br>    a. 互斥锁：只允许一个线程重建缓存，其他线程等待，利用setnx分布式锁，当返回true，证明这个key没有其他线程重建缓存，那么就执行构建缓存逻辑<br>    b. 永不过期：<br>        1)：不设置过期时间<br>        2)：为每个value设置一个过期时间，发现超过逻辑过期时间后，会单独线程构建缓存</p>
+<h3 id="12章-开发运维的陷阱"><a href="#12章-开发运维的陷阱" class="headerlink" title="12章.开发运维的陷阱"></a>12章.开发运维的陷阱</h3><ol>
+<li>Linux配置优化：<br> 1.1 内存分配控制(在/etc/sysctl.conf中)：vm.overcommit_memory；有三个值<pre><code>a. 0代表内核检查是否有足够可用内存，有足够就通过申请，否则就把错误返给应用进程
+b. 1代表内核允许超量使用内存直到用完
+c. 2代表内核绝不过量使用内存，系统整个内存地址空间不超过swap+50%的RAM值
+d. 设置方法：
+    echo &quot;vm.overcommit_memory=1&quot;  &gt;&gt; /etc/sysctl.conf
+    sysctl vm.overcommit_memory=1</code></pre> 1.2 swappiness：物理内存不足时，会将部分内存页进行swap操作，这个参数会决定操作系统 使用swap的倾向程度，取值范围是0~100，值越大，使用swap概率越高<pre><code>a. 设置方法：echo vm.swappiness=60 &gt;&gt; /etc/sysctl.conf
+b. 如何监控swap：
+    1). 使用命令free -m
+    2). 使用命令vmstat  1(间隔1s查询系统性能指标，关注in和out)</code></pre> 1.3 THP配置会增加重写期间父进程内存消耗，禁用方法如下：<pre><code>a. echo never &gt; /sys/kernel/mm/transparent_hugepage/enabled</code></pre> 1.4 OOM killer会在内存不足时选择性杀死用户进程，它会为每个用户进程设置一个权值，权值越高，被啥概率越高，这个权值放在/proc/{process_id}/oom_adj中，吧这个值设置为最小就不会被杀掉：<pre><code>echo {value} &gt; /proc/${process_id}/oom_adj</code></pre> 1.5. NTP(网络时间协议，保证不同机器时钟一致性的服务)<br> 1.6. TCP backlog：<br> 1.7. 执行flush后借助AOF恢复，如果配置了appendonly yes，则会在AOF文件追加一条flush记录，需要将flush记录去掉，然后利用AOF文件修复，操作如下：<pre><code>a. 防止AOF重写，修改主从的auto-aof-rewrite-percentage和auto-aof-rewrite-min-size变成一个很大的值，比如1000和100000000000
+b. 去掉主从AOF文件中的flush相关
+c. 重启redis主从节点，恢复数据</code></pre></li>
+<li>redis密码机制:<br>   2.1 redis-cli -a 参数可以增加密码参数或者redis-cli后auth 密码就可以了 </li>
+<li>bind认识：<br> a. bind指定的是redis和哪个网卡绑定，通过其他网卡地址不能访问这个redis</li>
+<li>bigkey的危害：<br> a. 发现：redis-cli –bigkeys可以统计bigkey分布</li>
+</ol>
 
-        <div class="article-info info-on-right">
-          
-          
+      
 
+      
+        <div class="page-reward">
+          <a href="javascript:;" class="page-reward-btn tooltip-top">
+            <div class="tooltip tooltip-east">
+            <span class="tooltip-item">
+              赏
+            </span>
+            <span class="tooltip-content">
+              <span class="tooltip-text">
+                <span class="tooltip-inner">
+                  <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我吃糖果<i class="icon icon-quo-right"></i></p>
+                  <div class="reward-box">
+                    
+                    
+                  </div>
+                </span>
+              </span>
+            </span>
+          </div>
+          </a>
         </div>
-        <div class="clearfix"></div>
-    </header>
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      
+
+      
+        
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
+        </div>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//pan.baidu.com/share/qrcode?url=https://mrkangh.github.io/2019/12/19/Redis%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B01/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+      
+      <div class="clearfix"></div>
+    </div>
   </div>
 </article>
+
   
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2019/12/09/SpringCloud%E7%B3%BB%E5%88%97%E4%B8%80-%E6%90%AD%E5%BB%BA%E8%84%9A%E6%89%8B%E6%9E%B6/" class="archive-article-date">
-  	<time datetime="2019-12-09T09:45:36.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-12-09</time>
-</a>
+<nav id="article-nav">
+  
+  
+    <a href="/2019/12/09/SpringCloud%E7%B3%BB%E5%88%97%E4%B8%80-%E6%90%AD%E5%BB%BA%E8%84%9A%E6%89%8B%E6%9E%B6/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">SpringCloud系列一:搭建脚手架</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
         </div>
-    	 
+        
+        
+    </div>
+</aside>
+
+
+
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2019/12/09/SpringCloud%E7%B3%BB%E5%88%97%E4%B8%80-%E6%90%AD%E5%BB%BA%E8%84%9A%E6%89%8B%E6%9E%B6/">SpringCloud系列一:搭建脚手架</a>
-    </h1>
+  
   
 
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">SpringCloud</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2019/12/09/%E4%BD%BF%E7%94%A8Hexo%E5%92%8CGitHub%E6%90%AD%E5%BB%BA%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2/" class="archive-article-date">
-  	<time datetime="2019-12-09T08:49:18.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-12-09</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2019/12/09/%E4%BD%BF%E7%94%A8Hexo%E5%92%8CGitHub%E6%90%AD%E5%BB%BA%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2/">使用Hexo和GitHub搭建个人博客</a>
-    </h1>
   
 
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">blog</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-  
-    </div></section>
   
 
-    
+  
 
 
           </div>
@@ -296,8 +345,8 @@
 	var yiliaConfig = {
 		mathjax: false,
 		isHome: false,
-		isPost: false,
-		isArchive: true,
+		isPost: true,
+		isArchive: false,
 		isTag: false,
 		isCategory: false,
 		open_in_new: false,
