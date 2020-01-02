@@ -157,19 +157,19 @@
           <div id="js-content" class="content-ll">
             
   
-    <article id="post-Redis学习笔记2" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+    <article id="post-Redis学习笔记12" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2019/12/24/Redis%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B02/">Redis学习笔记2</a>
+      <a class="article-title" href="/2019/12/24/Redis%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B012/">Redis学习笔记2</a>
     </h1>
   
 
         
-        <a href="/2019/12/24/Redis%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B02/" class="archive-article-date">
+        <a href="/2019/12/24/Redis%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B012/" class="archive-article-date">
   	<time datetime="2019-12-24T01:34:41.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-12-24</time>
 </a>
         
@@ -178,7 +178,7 @@
     <div class="article-entry" itemprop="articleBody">
       
         <h3 id="13章-CacheCloud"><a href="#13章-CacheCloud" class="headerlink" title="13章.CacheCloud"></a>13章.CacheCloud</h3><p>一. 安装jdk:<br>    1. 下载jdk1.8官网：<a href="https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html" target="_blank" rel="noopener">https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html</a><br>    2. 解压：tar -zxvf jdk-8u11-linux-x64.tar.gz<br>    3. 查询openjdk版本：rpm -qa|grep java<br>    4. 卸载openjdk：rpm -e –nodeps 【openjdk版本】<br>    5. 配置环境变量：<br>    <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span></pre></td><td class="code"><pre><span class="line">a. vim /etc/profile</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">2</span></pre></td><td class="code"><pre><span class="line">b. 	<span class="built_in">export</span> JAVA_HOME=/usr/<span class="built_in">local</span>/jdk/jdk1.8.0_181</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">3</span></pre></td><td class="code"><pre><span class="line">	<span class="built_in">export</span> PATH=<span class="variable">$PATH</span>:<span class="variable">$JAVA_HOME</span>/bin</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">4</span></pre></td><td class="code"><pre><span class="line">	<span class="built_in">source</span> /etc/profile</span></pre></td></tr></table></figure><br>二. 下载cacheCloud<br>    1. 下载网址：<a href="https://github.com/sohutv/cachecloud" target="_blank" rel="noopener">https://github.com/sohutv/cachecloud</a></p>
-<p>三. 安装Mysql:<br>    1. 下载安装包：wget <a href="http://dev.mysql.com/get/mysql-community-release-el7-5.noarch.rpm" target="_blank" rel="noopener">http://dev.mysql.com/get/mysql-community-release-el7-5.noarch.rpm</a><br>    2. 安装mysql：rpm -ivh mysql-community-release-el7-5.noarch.rpm<br>    3. 安装服务：yum install mysql-community-server<br>    4. 重启mysql服务：service mysqld restart<br>    5. 进入mysql：mysql -u root -p<br>    6. mysql设置密码方式：<br>        a. use mysql<br>        b. update user set password=password(‘123456’) where user=’root’;<br>        c. flush privileges;<br>        d. exit;<br>    7. 在mysql中创建cachecloud数据库：create database cachecloud;<br>    8. 创建admin用户并授权admin用户拥有cachecloud数据库的所有权限：grant all on cachecloud.* to ‘admin’@’localhost’identified by’admin’;<br>    9. 导入数据源(这个数据源在第三步项目中)：source /usr/local/cachecloud/script/cachecloud.sql;<br>    9. 其他基本操作：<br>        a、显示数据库：show databases;<br>        b、选择数据库：use 数据库名;<br>        c、显示数据库中的表：show tables;<br>        d、显示数据表的结构：describe 表名;<br>        e、显示表中记录：SELECT * FROM 表名<br>        f、建库：create databse 库名;</p>
+<p>三. 安装Mysql:<br>    1. 下载安装包：wget <a href="http://dev.mysql.com/get/mysql-community-release-el7-5.noarch.rpm" target="_blank" rel="noopener">http://dev.mysql.com/get/mysql-community-release-el7-5.noarch.rpm</a><br>    2. 安装mysql：rpm -ivh mysql-community-release-el7-5.noarch.rpm<br>    3. 安装服务：yum install mysql-community-server<br>    4. 重启mysql服务：service mysqld restart<br>    5. 进入mysql：mysql -u root<br>                 mysql -u root -p<br>    6. mysql设置密码方式：<br>        a. use mysql<br>        b. update user set password=password(‘123456’) where user=’root’;<br>        c. flush privileges;<br>        d. exit;<br>    7. 在mysql中创建cachecloud数据库：create database cachecloud;<br>    8. 创建admin用户并授权admin用户拥有cachecloud数据库的所有权限：grant all on cachecloud.* to ‘admin’@’localhost’identified by’admin’;<br>    9. 导入数据源(这个数据源在第三步项目中)：source /usr/local/cachecloud/script/cachecloud.sql;<br>    9. 其他基本操作：<br>        a、显示数据库：show databases;<br>        b、选择数据库：use 数据库名;<br>        c、显示数据库中的表：show tables;<br>        d、显示数据表的结构：describe 表名;<br>        e、显示表中记录：SELECT * FROM 表名<br>        f、建库：create databse 库名;</p>
 <p>四. 安装maven:<br>    1. 下载maven：wget <a href="http://mirrors.hust.edu.cn/apache/maven/maven-3/3.2.5/binaries/apache-maven-3.2.5-bin.tar.gz" target="_blank" rel="noopener">http://mirrors.hust.edu.cn/apache/maven/maven-3/3.2.5/binaries/apache-maven-3.2.5-bin.tar.gz</a><br>    2. 配置环境变量：<br>        a. vim /etc/profile<br>        b.     export M2_HOME=/usr/local/apache-maven-3.2.5<br>            export PATH=${PATH}:${M2_HOME}/bin<br>        c. source /etc/profile<br>        d. 进入maven的conf目录<br>            vim settings.xml，添加以下：<br>            <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span></pre></td><td class="code"><pre><span class="line">&lt;mirror&gt;  </span></pre></td></tr><tr><td class="gutter"><pre><span class="line">2</span></pre></td><td class="code"><pre><span class="line">    &lt;id&gt;nexus-aliyun&lt;/id&gt;  </span></pre></td></tr><tr><td class="gutter"><pre><span class="line">3</span></pre></td><td class="code"><pre><span class="line">    &lt;mirrorOf&gt;central&lt;/mirrorOf&gt;    </span></pre></td></tr><tr><td class="gutter"><pre><span class="line">4</span></pre></td><td class="code"><pre><span class="line">    &lt;name&gt;Nexus aliyun&lt;/name&gt;  </span></pre></td></tr><tr><td class="gutter"><pre><span class="line">5</span></pre></td><td class="code"><pre><span class="line">    &lt;url&gt;http://maven.aliyun.com/nexus/content/groups/public&lt;/url&gt;  </span></pre></td></tr><tr><td class="gutter"><pre><span class="line">6</span></pre></td><td class="code"><pre><span class="line">&lt;/mirror&gt;</span></pre></td></tr></table></figure><br>        e. 修改仓库地址：<br>            <localRepository>/usr/local/apache-maven-3.2.5/repository</localRepository><br>五. 启动服务:<br>    1. 修改数据库连接配置：vim /usr/local/cachecloud/cachecloud-open-web/src/main/swap/online.properties<br>    2. 在cachecloud根目录进行项目构建：mvn clean compile install -Plocal<br>    3. 测试启动：<br>        a. 在cachecloud-open-web目录下执行：mvn spring-boot:run<br>        b. 浏览器访问：<a href="http://10.211.55.12:9999/" target="_blank" rel="noopener">http://10.211.55.12:9999/</a><br>    4. 生产环境部署启动<br>        a. 在script目录下执行：sh deploy.sh /usr/local<br>        b.     启动方式一：/opt/cachecloud-web目录下的start脚本启动<br>            启动方式二：<br>                ln -s /usr/loccal/cachecloud/cachecloud-web/cachecloud-open-web-1.0-SNAPSHOT.war /etc/init.d/cachecloud-web<br>                /etc/init.d/cachecloud-web start</p>
 <p>报错：C3P0PooledConnectionPool.checkoutPooledConnection<br>解决方法：降低mysql版本，在由原来的mysql-connector-java-5.1.29降为mysql-connector-java-5.1.27</p>
 
@@ -193,7 +193,7 @@
 
       
         <p class="article-more-link">
-          <a class="article-more-a" href="/2019/12/24/Redis%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B02/">展开全文 >></a>
+          <a class="article-more-a" href="/2019/12/24/Redis%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B012/">展开全文 >></a>
         </p>
       
 
@@ -223,19 +223,19 @@
 
 
   
-    <article id="post-Redis学习笔记1" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+    <article id="post-Redis学习笔记11" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2019/12/19/Redis%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B01/">Redis学习笔记1</a>
+      <a class="article-title" href="/2019/12/19/Redis%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B011/">Redis学习笔记1</a>
     </h1>
   
 
         
-        <a href="/2019/12/19/Redis%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B01/" class="archive-article-date">
+        <a href="/2019/12/19/Redis%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B011/" class="archive-article-date">
   	<time datetime="2019-12-19T13:48:18.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-12-19</time>
 </a>
         
@@ -272,7 +272,7 @@ c. 重启redis主从节点，恢复数据</code></pre></li>
 
       
         <p class="article-more-link">
-          <a class="article-more-a" href="/2019/12/19/Redis%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B01/">展开全文 >></a>
+          <a class="article-more-a" href="/2019/12/19/Redis%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B011/">展开全文 >></a>
         </p>
       
 
@@ -546,7 +546,7 @@ c. 创建config文件夹，在这个文件夹下创建HystrixDashboardConfig.jav
   <div class="outer">
     <div id="footer-info">
     	<div class="footer-left">
-    		&copy; 2019 MrKangh
+    		&copy; 2020 MrKangh
     	</div>
       	<div class="footer-right">
       		<a href="http://hexo.io/" target="_blank">Hexo</a>  Theme <a href="https://github.com/litten/hexo-theme-yilia" target="_blank">Yilia</a> by Litten
