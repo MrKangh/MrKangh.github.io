@@ -157,6 +157,84 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-Redis学习笔记1" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2020/01/02/Redis%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B01/">Redis学习笔记1</a>
+    </h1>
+  
+
+        
+        <a href="/2020/01/02/Redis%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B01/" class="archive-article-date">
+  	<time datetime="2020-01-02T04:07:18.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-01-02</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="第一章-初识redis"><a href="#第一章-初识redis" class="headerlink" title="第一章.初识redis"></a>第一章.初识redis</h3><ol>
+<li>Redis中的值可以是由string（字符串）、hash（哈希）、list（列表）、set（集合）、zset（有序集合）、Bitmaps（位图）、HyperLogLog、GEO（地理信息定位）等多种数据结构和算法组成</li>
+<li>功能<br> a. 提供了键过期功能，可以用来实现缓存。<br> b. 提供了发布订阅功能，可以用来实现消息系统。<br> c. 支持Lua脚本功能，可以利用Lua创造出新的Redis命令。<br> d. 提供了简单的事务功能，能在一定程度上保证事务特性。<br> e. 提供了流水线（Pipeline）功能，这样客户端能将一批命令一次性传到Redis，减少了网络的开销。</li>
+<li>Redis从2.8版本正式提供了高可用实现Redis Sentinel，它能够保证Redis节点的故障发现和故障自动转移;Redis从3.0版本正式提供了分布式实现Redis Cluster，它是Redis真正的分布式实现</li>
+<li>单机版安装<br> wget <a href="http://download.redis.io/releases/redis-3.0.7.tar.gz" target="_blank" rel="noopener">http://download.redis.io/releases/redis-3.0.7.tar.gz</a><br> tar xzf redis-3.0.7.tar.gz<br> ln -s redis-3.0.7 redis<br> cd redis<br> make<br> make install(将Redis的相关运行文件放到/usr/local/bin/下，这样就可以在任意目录下执行Redis的命令)</li>
+<li>安装完成后在/usr/local/bin目录下有多个可执行文件，以下为简要说明<br> redis-benchmark        Redis基准测试工具<br> redis-check-aof        Redis AOF 持久化文件检测和修复工具<br> redis-check-dump    Redis RDB 持久化文件检测和修复工具</li>
+<li>连接redis：redis-cli -h 127.0.0.1 -p 6379<br>停止redis服务：redis-cli shutdown<br>是否在关闭redis前，生成持久化文件：redis-cli shutdown nosave|save</li>
+<li>redis重大版本：版本号第二位是偶数是稳定版本</li>
+<li>redis单线程快的原因：<ol>
+<li>纯内存访问，内存响应时长约为100纳秒</li>
+<li>非阻塞I/O，Redis使用epoll作为I/O多路复用技术的实现，再加上Redis自身的事件处理模型将epoll中的连接、读写、关闭都转换为事件，不在网络I/O上浪费过多的时间</li>
+<li>单线程避免线程切换和竞态的消耗</li>
+</ol>
+</li>
+</ol>
+<h3 id="第二章-初识redis"><a href="#第二章-初识redis" class="headerlink" title="第二章.初识redis"></a>第二章.初识redis</h3><p>一：常用命令<br>    1. 查看所有键：keys *<br>    2. 键总数：dbsize<br>    3. 检查键是否存在：exists key<br>    4. 删除键(支持删除多个)：del key<br>    5. 键过期：expire key seconds<br>    6. 查看键剩余过期时间(会返回剩余过期时间，-1代表没设置过期时间，-2代表键不存在)：ttl key<br>    7. 查看键的数据结构：type key<br>    8. 查看每种数据结构的内部编码实现：object encoding key<br>二：字符串相关命令<br>    1. set key value [ex seconds] [px milliseconds] [nx|xx]<br>        ex seconds：为键设置秒级过期时间<br>        px milliseconds：为键设置毫秒级过期时间<br>        nx：键必须不存在才可以设置，用于添加<br>        xx：键必须存在才可以设置，用于更新<br>    2. setnx key value和set key value nx作用一样<br>       setex key timeout value(如果key存在，值会被覆盖)<br>       可以根据setnx实现分布式锁：<a href="http://redis.io/topics/distlock" target="_blank" rel="noopener">http://redis.io/topics/distlock</a><br>    3. 批量设置值：mset key1 value1 key2 value2<br>       批量获取值：mget key1 key2<br>    4. 自增：incr key<br>       自增指定数字：incrby key number<br>       自增浮点数：incrbyfloat key number<br>       自减：decr key<br>       自减指定数字：decrby key number<br>    5. 追加值：append key value<br>    6. 字符串长度(每个中文占3个字节)：strlen key<br>    7. 设置新值并返回原值：getset key value<br>    8. 设置指定位置的字符(从0开始)：setrange key offset value<br>    9. 获取部分字符串(从0开始，包头包尾)：getrange key start end<br>    10. 内部编码：<br>        int：8个字节的长整型<br>        embstr：小于等于39个字节的字符串<br>        raw：大于39个字节的字符串</p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2020/01/02/Redis%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B01/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-Redis学习笔记12" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
